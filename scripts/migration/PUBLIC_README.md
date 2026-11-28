@@ -54,3 +54,8 @@ Cloudflare WARP выбирается отдельным пунктом маст�
 В режиме **5 — Всё включено** добавлен готовый Sub-Store. В `access/<роль>/delivery/start.txt` находятся общая страница файлов и ссылка подписки. XRay/XHTTP выдаются без конвертации; AWG/WG/OpenVPN и Telegram доступны отдельно на той же странице. Панель Sub-Store открывается через SSH-туннель. [Инструкция](scripts/migration/README.md#sub-store-одна-выдача-всех-подключений).
 
 Для экспериментального запуска на VPS с 1 ГБ RAM и уже настроенными 2 ГБ swap используйте `--low-memory`. Обе панели сохраняются; нагрузочная ёмкость не гарантируется. [Условия](scripts/migration/README.md#тестовый-режим-для-vps-с-1-гб-ram).
+
+
+## Для разработки
+
+В checkout репозитория: `python -X utf8 scripts/qa/run.py` — локальные тесты и сборка, одна строка JSON, приватные логи. [Группы проверок и повтор ошибок](scripts/qa/README.md). Приватные серверные планы в публичный пакет не входят. [Публикация](scripts/release/README.md), [требования](docs/functional-requirements.md), [порты](docs/ports.md) и [проверенные возможности](docs/reports/verified-status-20261128.md).

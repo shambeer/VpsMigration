@@ -1,0 +1,32 @@
+{
+  "steps": [
+    {
+      "id": "release_checks",
+      "group": "release",
+      "kind": "local",
+      "command": [
+        "{python}",
+        "-X",
+        "utf8",
+        "scripts/qa/run.py"
+      ],
+      "timeout": 600
+    },
+    {
+      "id": "publication",
+      "group": "release",
+      "kind": "publish",
+      "command": [
+        "{python}",
+        "-X",
+        "utf8",
+        "scripts/release/publish.py",
+        "--publish"
+      ],
+      "timeout": 600,
+      "depends_on": [
+        "release_checks"
+      ]
+    }
+  ]
+}
