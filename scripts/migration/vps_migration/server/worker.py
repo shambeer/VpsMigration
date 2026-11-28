@@ -306,7 +306,7 @@ def rewrite_host_settings(manifest, request):
 
 
 def start_restored(manifest, request):
-    order = ['3dp-postgres', 'amnezia-xray', 'amnezia-awg2', 'amnezia-telemt', '3x-ui', '3dp-backend', '3dp-frontend',
+    order = ['3dp-postgres', 'amnezia-xray', 'amnezia-awg2', 'amnezia-telemt', '3x-ui', '3dp-backend', '3dp-frontend', 'vpn-sub-store',
              *selfsteal.NAMES]
     names = [item['Name'].lstrip('/') for item in manifest['containers']]
     for name in order + [value for value in names if value not in order]:
@@ -723,6 +723,8 @@ def verify_and_export(request, job):
     time.sleep(5)
     checks = {}
     for name in c.CONTAINERS:
+        if name == 'vpn-sub-store' and not request.get('selfsteal_options', {}).get('sub_store') and not stack.exists(name):
+            continue
         if name == 'vpn-hysteria2' and request.get('self_steal') and not stack.exists(name):
             continue
         if name in selfsteal.NAMES and not request.get('self_steal'):
