@@ -13,3 +13,7 @@ VpsMigration/
 session.json
 session.json.tmp
 session.lock
+
+/.private-root
+/.claude/
+/.mcp.json

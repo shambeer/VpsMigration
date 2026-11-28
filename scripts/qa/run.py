@@ -11,7 +11,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUT = ROOT / 'private-vpn/qa'
+PRIVATE_POINTER = ROOT / '.private-root'
+PRIVATE_ROOT = Path(PRIVATE_POINTER.read_text(encoding='utf-8').strip()) if PRIVATE_POINTER.exists() else ROOT / 'private-vpn'
+DEFAULT_OUTPUT = PRIVATE_ROOT / 'qa'
 
 
 def built_in_steps():

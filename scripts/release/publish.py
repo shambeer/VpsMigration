@@ -32,7 +32,7 @@ def public_sources():
     for name in ['github_api.py', 'publish.py', 'README.md']:
         path = 'scripts/release/' + name
         sources[path] = (ROOT / path).read_text(encoding='utf-8')
-    for path in ['docs/functional-requirements.md', 'docs/ports.md', 'docs/reports/guide-coverage-20261128.md', 'docs/reports/sub-store-compatibility-20261128.md', 'docs/reports/linux-audit-20261128.md', 'docs/reports/verified-status-20261128.md']:
+    for path in ['AGENTS.md', 'docs/agent-context.md', 'docs/README.md', 'config/README.md', 'images/README.md', 'docs/functional-requirements.md', 'docs/ports.md', 'docs/reports/guide-coverage-20261128.md', 'docs/reports/sub-store-compatibility-20261128.md', 'docs/reports/linux-audit-20261128.md', 'docs/reports/verified-status-20261128.md']:
         sources[path] = (ROOT / path).read_text(encoding='utf-8')
     for path, content in sources.items():
         if re.search(r'-----BEGIN (?:OPENSSH |RSA |EC )?PRIVATE KEY-----|(?i:github_pat_|ghp_)[A-Za-z0-9_]{20,}', content):
@@ -116,7 +116,11 @@ def main():
         current_release = api(token, 'PATCH', base + '/releases/' + str(current_release['id']), {'draft': False})
     report = {'repository_url': repository['html_url'], 'release_url': current_release['html_url'],
               'source_commit': parent, 'tag': release['tag'], 'sha256': release['sha256'], 'assets': assets}
-    destination = ROOT / 'private-vpn/server-settings/metadata/repository/published-public-migrator.json'
+    pointer = ROOT / '.private-root'
+    private_root = Path(pointer.read_text(encoding='utf-8').strip()) if pointer.exists() else ROOT / 'private-vpn'
+    if not private_root.is_absolute():
+        raise RuntimeError('Private root must be an absolute path')
+    destination = private_root / 'server-settings/metadata/repository/published-public-migrator.json'
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(report))
