@@ -3,6 +3,7 @@ import datetime
 import ipaddress
 import hashlib
 import json
+import socket
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
@@ -33,6 +34,11 @@ def outbound(registration):
         address = ipaddress.ip_address(parsed.hostname)
     except ValueError:
         c.validate_domain(parsed.hostname)
+        resolved = socket.getaddrinfo(parsed.hostname, parsed.port, socket.AF_INET, socket.SOCK_DGRAM)
+        address = ipaddress.ip_address(resolved[0][4][0])
+        if not address.is_global:
+            raise ValueError('Endpoint WARP должен быть публичным')
+        endpoint = str(address) + ':' + str(parsed.port)
     else:
         if not address.is_global:
             raise ValueError('Endpoint WARP должен быть публичным')
@@ -64,7 +70,8 @@ def register(request):
     body = {'key': public, 'tos': datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
             'type': 'PC', 'model': 'x-ui', 'name': 'VpsMigration'}
     message = Request(API, data=json.dumps(body).encode(), headers={
-        'Content-Type': 'application/json', 'CF-Client-Version': 'a-6.30-3596'}, method='POST')
+        'Content-Type': 'application/json', 'CF-Client-Version': 'a-6.30-3596',
+        'User-Agent': 'Go-http-client/1.1'}, method='POST')
     try:
         with urlopen(message, timeout=40) as response:
             raw = response.read(2 * 1024 ** 2 + 1)

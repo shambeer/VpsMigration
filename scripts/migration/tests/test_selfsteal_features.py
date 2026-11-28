@@ -222,6 +222,16 @@ class FullSelfStealTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 warp.outbound(value)
 
+    def test_warp_hostname_uses_public_ipv4_and_rejects_private_dns(self):
+        registration = self.registration()
+        registration['config']['peers'][0]['endpoint']['host'] = 'engage.cloudflareclient.com:2408'
+        with patch.object(warp.socket, 'getaddrinfo', return_value=[(2, 2, 17, '', ('162.159.192.1', 2408))]):
+            peer = warp.outbound(registration)['settings']['peers'][0]
+            self.assertEqual(peer['endpoint'], '162.159.192.1:2408')
+        with patch.object(warp.socket, 'getaddrinfo', return_value=[(2, 2, 17, '', ('127.0.0.1', 2408))]):
+            with self.assertRaises(ValueError):
+                warp.outbound(registration)
+
     def test_registration_is_cached_per_server_and_pending_is_not_repeated(self):
         registration = self.registration()
         response = {'config': registration['config'], 'id': 'device', 'token': 'private-token'}
@@ -235,6 +245,7 @@ class FullSelfStealTests(unittest.TestCase):
             first = warp.register(self.request)
             self.assertEqual(warp.register(self.request), first)
             send.assert_called_once()
+            self.assertEqual(send.call_args.args[0].get_header('User-agent'), 'Go-http-client/1.1')
             warp.register({**self.request, 'ip': '8.8.8.8'})
             self.assertEqual(send.call_count, 2)
             self.assertEqual(len(list((self.root / 'config/selfsteal-features').glob('warp-*.json'))), 2)
